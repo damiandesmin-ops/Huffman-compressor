@@ -1,1 +1,288 @@
-��-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Huffman Compressor — Smart Text Compressor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] } } } }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: #0f172a; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 1.25rem; box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 12px 32px -12px rgba(30,41,59,.18); }
+    .tab-btn { transition: all .15s ease; }
+    .tab-btn.active { background: #fff !important; color: #0f172a !important; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+    .btn-primary { background: linear-gradient(135deg,#4f46e5,#2563eb); color: #fff; box-shadow: 0 8px 20px -6px rgba(79,70,229,.55); transition: all .15s ease; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 26px -6px rgba(79,70,229,.6); }
+    .btn-dark { background: #0f172a; color: #fff; transition: all .15s ease; }
+    .btn-dark:hover { background: #1e293b; transform: translateY(-1px); }
+    .btn-outline { background: #fff; border: 1px solid #cbd5e1; transition: all .15s ease; }
+    .btn-outline:hover { border-color: #4f46e5; color: #4f46e5; }
+    .dropzone { border: 1.5px dashed #a5b4fc; background: linear-gradient(180deg,#eef2ff,#f8fafc); transition: all .15s; }
+    .dropzone:hover { border-color: #4f46e5; background: #eef2ff; }
+    .code-pill { background: linear-gradient(135deg,#eef2ff,#e0f2fe); color: #3730a3; border: 1px solid #c7d2fe; border-radius: 9999px; padding: 1px 10px; font-weight: 700; letter-spacing: .03em; }
+    .stat-card { transition: transform .15s ease, box-shadow .15s ease; }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 14px 28px -12px rgba(30,41,59,.25); }
+    textarea:focus { outline: none; border-color: #4f46e5 !important; box-shadow: 0 0 0 3px rgba(79,70,229,.15); }
+    .hero-mesh { background: radial-gradient(600px 260px at 15% 0%, rgba(129,140,248,.45), transparent 60%), radial-gradient(500px 240px at 85% 20%, rgba(34,211,238,.35), transparent 60%), radial-gradient(500px 300px at 60% 100%, rgba(52,211,153,.28), transparent 60%), linear-gradient(135deg,#1e1b4b,#312e81 55%,#0c4a6e); }
+    .glass { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(8px); }
+    .fade-up { animation: fadeUp .45s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+    #results.fade-up > div { animation: fadeUp .5s ease both; }
+    #results.fade-up > div:nth-child(2) { animation-delay: .07s; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 8px; }
+    .timeline-dot::before { content: ''; position: absolute; left: 19px; top: 44px; bottom: -14px; width: 2px; background: linear-gradient(180deg,#c7d2fe,#e2e8f0); }
+    .timeline-dot:last-child::before { display: none; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- NAV -->
+  <header class="bg-slate-900 text-white sticky top-0 z-20 shadow-xl">
+    <div class="absolute inset-x-0 bottom-0 h-[2px]" style="background:linear-gradient(90deg,#6366f1,#22d3ee,#34d399)"></div>
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col lg:flex-row lg:items-center gap-3 justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#6366f1,#22d3ee);box-shadow:0 4px 14px rgba(99,102,241,.5)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h10M4 6v10h10M18 12h2M18 12v6M12 12h2" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="6" r="2" fill="#a7f3d0"/></svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-extrabold tracking-tight leading-none">Huffman Compressor</h1>
+          <p class="text-xs mt-0.5 text-slate-400">Shrink text files instantly — nothing ever leaves your browser</p>
+        </div>
+      </div>
+      <div class="flex gap-1 bg-white/10 p-1 rounded-xl border border-white/10 w-fit">
+        <button data-tab="compress" class="tab-btn active px-5 py-2 rounded-lg bg-white/10 text-sm font-semibold">Compress</button>
+        <button data-tab="decompress" class="tab-btn px-5 py-2 rounded-lg bg-white/10 text-sm font-semibold">Restore</button>
+        <button data-tab="dashboard" class="tab-btn px-5 py-2 rounded-lg bg-white/10 text-sm font-semibold">History</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- COMPRESS -->
+    <section id="tab-compress" class="space-y-5">
+      <!-- HERO -->
+      <div class="hero-mesh rounded-3xl p-6 sm:p-8 text-white shadow-2xl flex flex-col lg:flex-row gap-6 lg:items-center justify-between overflow-hidden relative">
+        <div class="max-w-2xl relative">
+          <span class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest rounded-full px-3 py-1 glass">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Lossless text compression
+          </span>
+          <h2 class="text-3xl sm:text-[2.6rem] leading-tight font-extrabold tracking-tight mt-3">Make text files<br/>smaller in one click.</h2>
+          <p class="text-slate-300 text-sm sm:text-base mt-2 max-w-xl">Type or drop text files, download a smaller <span class="font-mono text-xs bg-white/10 border border-white/20 px-1.5 py-0.5 rounded">.huff</span> file, and restore it perfectly anytime.</p>
+          <div class="flex flex-wrap gap-2 mt-4 text-xs font-semibold">
+            <span class="glass rounded-full px-3 py-1.5">Live statistics</span>
+            <span class="glass rounded-full px-3 py-1.5">Batch upload</span>
+            <span class="glass rounded-full px-3 py-1.5">Zero uploads</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 lg:grid-cols-1 gap-3 w-full lg:w-56 relative">
+          <div class="glass rounded-2xl p-4 text-center"><div class="text-2xl font-extrabold">−40%</div><div class="text-[11px] text-slate-300">typical savings</div><div class="h-1.5 rounded-full bg-white/10 mt-2 overflow-hidden"><div class="h-1.5 rounded-full bg-gradient-to-r from-indigo-400 to-cyan-300" style="width:60%"></div></div></div>
+          <div class="glass rounded-2xl p-4 text-center"><div class="text-2xl font-extrabold">1-click</div><div class="text-[11px] text-slate-300">shrink & restore</div></div>
+          <div class="glass rounded-2xl p-4 text-center"><div class="text-2xl font-extrabold text-emerald-300">100%</div><div class="text-[11px] text-slate-300">reversible</div></div>
+        </div>
+      </div>
+
+      <div class="card p-5 sm:p-6">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-lg text-white text-sm font-bold flex items-center justify-center" style="background:linear-gradient(135deg,#4f46e5,#2563eb)">1</div>
+          <div>
+            <h2 class="font-bold text-lg leading-none">Input</h2>
+            <p class="text-xs text-slate-400 mt-0.5"><span id="charCount">0</span> characters · <span id="wordCount">0</span> words · longer text compresses best</p>
+          </div>
+          <div class="ml-auto flex gap-2">
+            <button id="sampleBtn" class="btn-outline px-4 py-2 text-sm rounded-xl font-semibold">Sample</button>
+            <button id="clearBtn" class="btn-outline px-4 py-2 text-sm rounded-xl font-semibold">Clear</button>
+          </div>
+        </div>
+        <textarea id="inputText" rows="6" class="w-full border border-slate-300 rounded-xl p-4 text-sm font-mono bg-slate-50/50 transition" placeholder="Type or paste text here...">huffman coding compresses text by giving short codes to frequent characters. frequent letters like e and spaces get tiny codes, rare letters get longer ones — that's the whole trick!</textarea>
+        <div class="flex flex-wrap gap-2 mt-4 items-center">
+          <label class="dropzone flex-1 min-w-[260px] rounded-xl px-4 py-3.5 text-sm cursor-pointer">
+            <span class="font-semibold text-indigo-700">Drop files here or click to browse</span>
+            <span class="text-slate-500"> — .txt, .md, .csv, .json, .pdf (multi-select OK)</span>
+            <input id="fileInput" type="file" accept=".txt,.md,.csv,.json,.js,.py,.html,.css,.pdf,application/pdf,text/plain" multiple class="hidden" />
+          </label>
+          <button id="compressBtn" class="btn-primary px-8 py-3.5 text-sm rounded-xl font-bold">Compress →</button>
+        </div>
+        <p id="fileInfo" class="text-xs text-slate-500 mt-2"></p>
+        <div id="fileQueue" class="hidden flex-wrap gap-2 mt-2"></div>
+      </div>
+
+      <div id="results" class="hidden space-y-5">
+        <div class="card p-5 sm:p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-lg text-white text-sm font-bold flex items-center justify-center bg-emerald-600">2</div>
+            <div>
+              <h2 class="font-bold text-lg leading-none">Results</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Measured on the actual downloadable file</p>
+            </div>
+            <div class="ml-auto hidden sm:flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span><span id="verdictMini">Ready</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+            <div class="stat-card rounded-2xl bg-slate-50 border border-slate-200 p-4 border-t-4" style="border-top-color:#6366f1"><div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Original</div><div id="statOrig" class="font-extrabold mt-1 text-lg">-</div></div>
+            <div class="stat-card rounded-2xl bg-slate-50 border border-slate-200 p-4 border-t-4" style="border-top-color:#22d3ee"><div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Compressed</div><div id="statComp" class="font-extrabold mt-1 text-lg">-</div></div>
+            <div class="stat-card rounded-2xl bg-emerald-50 border border-emerald-200 p-4 border-t-4" style="border-top-color:#10b981"><div class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Saved</div><div id="statRatio" class="font-extrabold mt-1 text-lg">-</div></div>
+            <div class="stat-card rounded-2xl bg-slate-50 border border-slate-200 p-4 border-t-4" style="border-top-color:#f59e0b"><div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Avg / char</div><div id="statAvg" class="font-extrabold mt-1 text-lg">-</div></div>
+            <div class="stat-card rounded-2xl bg-slate-50 border border-slate-200 p-4 border-t-4" style="border-top-color:#8b5cf6"><div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Time</div><div id="statTime" class="font-extrabold mt-1 text-lg">-</div></div>
+          </div>
+          <div class="flex flex-wrap gap-2 mt-4 items-center rounded-xl bg-slate-50 border border-slate-200 p-3">
+            <button id="downloadHuff" class="btn-dark px-5 py-2.5 text-sm rounded-xl font-semibold">Download .huff</button>
+            <button id="downloadInputPdf" class="btn-outline px-5 py-2.5 text-sm rounded-xl font-semibold">Text as .pdf</button>
+            <span id="huffSizeNote" class="text-xs text-slate-500"></span>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-5 gap-5">
+          <div class="card p-5 md:col-span-2">
+            <div class="flex items-center gap-2 mb-1">
+              <h3 class="font-bold">Character codes</h3>
+              <input id="codesSearch" placeholder="Filter…" class="ml-auto w-28 text-xs border border-slate-300 rounded-lg px-2 py-1.5" />
+            </div>
+            <p class="text-xs text-slate-500 mb-3">Frequent characters receive shorter codes</p>
+            <div class="max-h-[520px] overflow-auto rounded-xl border border-slate-200">
+              <table class="w-full text-sm">
+                <thead class="bg-slate-50 sticky top-0 text-[11px] uppercase tracking-wider text-slate-500"><tr><th class="text-left p-2.5">Character</th><th class="text-left p-2.5">Count</th><th class="text-left p-2.5">Code</th><th class="text-left p-2.5">Len</th></tr></thead>
+                <tbody id="codesTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="rounded-3xl p-[1.5px] md:col-span-3" style="background:linear-gradient(135deg,#6366f1,#22d3ee,#34d399)">
+            <div class="rounded-3xl p-5 sm:p-6 bg-slate-900 h-full">
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-white">Compression analysis</h3>
+                <span class="text-[11px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-2.5 py-1">auto-generated</span>
+              </div>
+              <p class="text-sm text-slate-400 mb-4">Size reduction and code-length distribution.</p>
+              <div id="chartsView" class="max-h-[520px] overflow-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-3xl p-5 sm:p-8 text-white shadow-2xl relative overflow-hidden" style="background:radial-gradient(500px 220px at 10% 0%, rgba(99,102,241,.4), transparent 60%), radial-gradient(420px 220px at 90% 100%, rgba(34,211,238,.28), transparent 60%), linear-gradient(135deg,#0f172a,#1e1b4b 60%,#0c4a6e)">
+        <div class="flex items-baseline gap-3 relative">
+          <h2 class="font-extrabold text-xl tracking-tight">How it works</h2>
+          <p class="text-xs text-slate-400 ml-auto hidden sm:block">Four steps, all on your device</p>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-6 relative">
+          <div class="rounded-2xl p-4 bg-white/[.06] border border-white/10 backdrop-blur">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold" style="background:linear-gradient(135deg,#6366f1,#4f46e5);box-shadow:0 4px 14px rgba(99,102,241,.5)">1</div>
+            <p class="font-bold text-sm mt-3">Count characters</p>
+            <p class="text-[13px] text-slate-400 mt-1 leading-relaxed">Spaces and common letters appear most often.</p>
+          </div>
+          <div class="rounded-2xl p-4 bg-white/[.06] border border-white/10 backdrop-blur">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold" style="background:linear-gradient(135deg,#22d3ee,#0284c7);box-shadow:0 4px 14px rgba(34,211,238,.4)">2</div>
+            <p class="font-bold text-sm mt-3">Assign short codes</p>
+            <p class="text-[13px] text-slate-400 mt-1 leading-relaxed">Frequent characters get codes like <span class="font-mono font-bold text-slate-200">01</span>; rare ones get longer codes.</p>
+          </div>
+          <div class="rounded-2xl p-4 bg-white/[.06] border border-white/10 backdrop-blur">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold" style="background:linear-gradient(135deg,#34d399,#059669);box-shadow:0 4px 14px rgba(52,211,153,.4)">3</div>
+            <p class="font-bold text-sm mt-3">Pack into .huff</p>
+            <p class="text-[13px] text-slate-400 mt-1 leading-relaxed">Codes are packed bit-by-bit with a small decoding key.</p>
+          </div>
+          <div class="rounded-2xl p-4 bg-white/[.06] border border-white/10 backdrop-blur">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold bg-white text-slate-900">4</div>
+            <p class="font-bold text-sm mt-3">Restore anytime</p>
+            <p class="text-[13px] text-slate-400 mt-1 leading-relaxed">Reload the <span class="font-mono text-xs text-slate-200">.huff</span> file to recover the exact original.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DECOMPRESS -->
+    <section id="tab-decompress" class="hidden">
+      <div class="card p-5 sm:p-6">
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-sm">↩</div>
+          <div><h2 class="font-bold text-lg leading-none">Restore a file</h2><p class="text-xs text-slate-400 mt-0.5">Lossless recovery in one click</p></div>
+        </div>
+        <div id="restoreDrop" class="dropzone rounded-xl p-6 text-center mt-3">
+          <div class="mx-auto w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 4v10m0 0l-4-4m4 4l4-4M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <input id="huffInput" type="file" accept=".huff" class="text-sm" />
+          <p class="text-xs text-slate-500 mt-2">Select a .huff file created with this tool</p>
+        </div>
+        <button id="decompressBtn" class="btn-primary mt-3 px-6 py-2.5 text-sm rounded-xl font-bold">Restore</button>
+        <div id="restorePreview" class="hidden mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs"></div>
+        <p id="decompStatus" class="text-sm text-slate-600 mt-3"></p>
+        <textarea id="decompOutput" rows="8" class="w-full border border-slate-300 rounded-xl p-4 text-sm font-mono mt-2 hidden bg-slate-50" readonly></textarea>
+        <button id="downloadTxt" class="btn-dark hidden mt-3 px-5 py-2.5 text-sm rounded-xl font-semibold">Download .txt</button>
+        <button id="downloadPdf" class="btn-outline hidden mt-3 ml-2 px-5 py-2.5 text-sm rounded-xl font-semibold">Download .pdf</button>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="tab-dashboard" class="hidden">
+      <div class="card p-5 sm:p-6">
+        <div class="flex justify-between items-center mb-4">
+          <div><h2 class="font-bold text-lg leading-none">History</h2><p class="text-xs text-slate-400 mt-0.5">Every compression in this browser</p></div>
+          <button id="clearHistory" class="btn-outline px-4 py-2 text-sm rounded-xl font-semibold">Clear</button>
+        </div>
+        <div class="overflow-auto rounded-xl border border-slate-200">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-900 text-white text-[11px] uppercase tracking-wider"><tr>
+              <th class="text-left p-3">File</th><th class="text-left p-3">Original</th>
+              <th class="text-left p-3">Compressed</th><th class="text-left p-3">Saved</th>
+              <th class="text-left p-3">Chars</th><th class="text-left p-3">Time</th>
+            </tr></thead>
+            <tbody id="historyTable"></tbody>
+          </table>
+        </div>
+        <p class="text-xs text-slate-500 mt-3">Stored locally. Very small files are kept as-is so they never grow.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-slate-200 mt-4"><div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row gap-2 items-center justify-between text-xs text-slate-400"><span>Huffman Compressor — fast, private text compression</span><span>All processing happens on-device</span></div></footer>
+
+  <div id="dropOverlay" class="hidden fixed inset-0 z-50 items-center justify-center p-6" style="background:rgba(15,23,42,.55)">
+    <div class="rounded-3xl bg-white px-10 py-8 text-center shadow-2xl border-2 border-dashed border-indigo-400">
+      <p class="font-extrabold text-xl text-slate-900">Drop files to load</p>
+      <p class="text-sm text-slate-500 mt-1">text & .pdf here — .huff jumps to Restore</p>
+    </div>
+  </div>
+
+  <script src="js/heap.js"></script>
+  <script src="js/huffman.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/viz.js"></script>
+  <script>
+    (function () {
+      const ta = document.getElementById('inputText');
+      const cc = document.getElementById('charCount');
+      const wc = document.getElementById('wordCount');
+      function upd() {
+        const v = ta.value || '';
+        cc.textContent = [...v].length.toLocaleString();
+        wc.textContent = (v.trim() ? v.trim().split(/\s+/).length : 0).toLocaleString();
+      }
+      ta.addEventListener('input', upd); upd();
+      document.getElementById('codesSearch').addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        document.querySelectorAll('#codesTable tr').forEach((tr) => {
+          tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+      });
+      document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => {
+        const r = document.getElementById('results');
+        if (r && !r.classList.contains('hidden')) { r.classList.remove('fade-up'); void r.offsetWidth; r.classList.add('fade-up'); }
+      }));
+      const obs = new MutationObserver(() => {
+        const r = document.getElementById('statRatio');
+        const v = document.getElementById('verdictMini');
+        if (r && v) v.textContent = r.textContent;
+      });
+      obs.observe(document.getElementById('statRatio'), { childList: true, characterData: true, subtree: true });
+    })();
+  </script>
+</body>
+</html>
